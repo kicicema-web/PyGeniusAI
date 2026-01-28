@@ -1,0 +1,66 @@
+[
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/xml_backup_rules.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-mdpi_ic_launcher_round.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-mdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/layout_widget_pygenius.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/layout/widget_pygenius.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-hdpi_ic_launcher_round.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-hdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/xml_data_extraction_rules.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-mdpi_ic_launcher.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-mdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/drawable_widget_background.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/drawable/widget_background.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-xxxhdpi_ic_launcher_round.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-xxxhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-xxxhdpi_ic_launcher.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-xxxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/xml_widget_info.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/xml/widget_info.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-xhdpi_ic_launcher_round.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-xhdpi/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-xhdpi_ic_launcher.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-xhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-hdpi_ic_launcher.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-hdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-xxhdpi_ic_launcher.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-xxhdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.pygeniusai.app-merged_res-54:/mipmap-xxhdpi_ic_launcher_round.xml.flat",
+        "source": "com.pygeniusai.app-main-56:/mipmap-xxhdpi/ic_launcher_round.xml"
+    }
+]

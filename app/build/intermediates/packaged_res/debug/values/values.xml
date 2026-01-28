@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="navigation_bar">#FF121212</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="status_bar">#FF1E1E1E</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="ai_assist">AI Assist</string>
+    <string name="ai_suggestion_placeholder">AI suggestions will appear here...</string>
+    <string name="ai_tutor_tab">AI Tutor</string>
+    <string name="app_name">PyGenius AI</string>
+    <string name="ask_ai">Ask AI...</string>
+    <string name="available_packages">Available Packages</string>
+    <string name="bug_prediction">Bug Prediction</string>
+    <string name="console_output">Console output will appear here...</string>
+    <string name="console_tab">Console</string>
+    <string name="editor_tab">Editor</string>
+    <string name="explain_code">Explain Code</string>
+    <string name="fix_code">Fix Code</string>
+    <string name="hint_button">Get Hint</string>
+    <string name="install">Install</string>
+    <string name="installed_packages">Installed Packages</string>
+    <string name="learning_mode">Learning</string>
+    <string name="lesson_advanced">Advanced</string>
+    <string name="lesson_beginner">Beginner</string>
+    <string name="lesson_intermediate">Intermediate</string>
+    <string name="new_file">New File</string>
+    <string name="next_lesson">Next Lesson</string>
+    <string name="open_file">Open</string>
+    <string name="pip_install">Pip</string>
+    <string name="pip_search_hint">Search packages (e.g., numpy, pandas)...</string>
+    <string name="prev_lesson">Previous</string>
+    <string name="run_code">Run</string>
+    <string name="save_file">Save</string>
+    <string name="settings">Settings</string>
+    <string name="solution_button">Solution</string>
+    <string name="stop_code">Stop</string>
+    <string name="try_yourself">Try Yourself</string>
+    <string name="type_code_here">Type Python code here...</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="voice_code">Voice</string>
+    <string name="voice_coding_hint">Hold to speak your code...</string>
+    <string name="widget_code_now">Code Now</string>
+    <string name="widget_streak">Streak: %1$d🔥</string>
+    <style name="Theme.PyGeniusAI" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/status_bar</item>
+        <item name="android:navigationBarColor">@color/navigation_bar</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>
