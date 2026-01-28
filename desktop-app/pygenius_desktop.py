@@ -4,12 +4,44 @@ PyGenius AI - Desktop Edition v2.0
 Modern Material Design interface with setup wizard
 """
 
-import tkinter as tk
-from tkinter import ttk, scrolledtext, messagebox, filedialog
+import sys
+
+# Check for tkinter first
+try:
+    import tkinter as tk
+    from tkinter import ttk, scrolledtext, messagebox, filedialog
+except ImportError:
+    print("""
+╔══════════════════════════════════════════════════════════════╗
+║  PyGenius AI - Missing Dependency                            ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                              ║
+║  Tkinter is required but not installed.                      ║
+║                                                              ║
+║  Install it with:                                            ║
+║    Ubuntu/Debian: sudo apt-get install python3-tk            ║
+║    Fedora:        sudo dnf install python3-tkinter           ║
+║    Arch Linux:    sudo pacman -S tk                          ║
+║    Alpine:        sudo apk add python3-tkinter               ║
+║                                                              ║
+║  Or use the .deb package which includes all dependencies.    ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+""")
+    sys.exit(1)
+
+# Also check for requests
+try:
+    import requests
+except ImportError:
+    print("Installing requests...")
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "requests", "-q"])
+    import requests
+
 import threading
 import json
 import os
-import sys
 import subprocess
 import time
 
