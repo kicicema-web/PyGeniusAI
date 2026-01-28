@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""
+PyGenius AI - Linux Launcher
+A cross-platform Python script that runs the desktop app
+"""
+
+import sys
+import os
+import subprocess
+
+# Check Python version
+if sys.version_info < (3, 8):
+    print("Error: Python 3.8 or higher is required!")
+    print(f"Current version: {sys.version}")
+    sys.exit(1)
+
+# Check for requests
+try:
+    import requests
+except ImportError:
+    print("Installing required package: requests...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", "requests"])
+    import requests
+
+# Get the directory where this script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+pygenius_desktop = os.path.join(script_dir, "pygenius_desktop.py")
+
+# Run the app
+if os.path.exists(pygenius_desktop):
+    os.chdir(script_dir)
+    subprocess.call([sys.executable, pygenius_desktop])
+else:
+    print(f"Error: Could not find {pygenius_desktop}")
+    print("Please ensure pygenius_desktop.py is in the same directory.")
+    sys.exit(1)

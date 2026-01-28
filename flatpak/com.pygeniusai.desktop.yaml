@@ -1,0 +1,92 @@
+app-id: com.pygeniusai.desktop
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: pygenius
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/doc
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
+finish-args:
+  # Display
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --device=dri
+  # Network for AI API
+  - --share=network
+  # Home directory access for saving files
+  - --filesystem=home
+  # For sound (if needed later)
+  - --socket=pulseaudio
+
+modules:
+  - name: python3-requests
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app requests==2.31.0
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl
+        sha256: 58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f
+
+  - name: python3-certifi
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app certifi==2023.7.22
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/4c/dd/2234eab22353ffc7d94e8d55ba1d909256150a78be2d30625fc298246eb8/certifi-2023.7.22-py3-none-any.whl
+        sha256: 92d6037539857d8206b8f6ae472e8b77db8058fec5937a1ef3f54304089edbb9
+
+  - name: python3-charset-normalizer
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app charset-normalizer==3.2.0
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/bf/a0/188f223c7d8b924fb9b554b9d27e0e7506fd5bf9cfb6f3e4f0ec379d9f29/charset_normalizer-3.2.0-py3-none-any.whl
+        sha256: 8e098148dd37b4ce3baca71fb394c81dc5d9c7728c95df695d2dca218abf40a4
+
+  - name: python3-idna
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app idna==3.4
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/fc/34/3030de6f1370931b9dbb4dad48f6ab1015ab1d324478952b2868aa13e975/idna-3.4-py3-none-any.whl
+        sha256: 90b77e79e9693eba95161c1f82e96f502d20d06721f9d6f124c2bac8c575f5f6
+
+  - name: python3-urllib3
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app urllib3==2.0.4
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/9b/81/62fd61001fa4b9d0df6e31d47ff49cfa9de4af03adecf3397127a6f0e1a9/urllib3-2.0.4-py3-none-any.whl
+        sha256: de7df1803967d2c2a98e4b11bb7d6bd9210474c46e8a0401514e3e42a5716c4c
+
+  - name: pygenius
+    buildsystem: simple
+    build-commands:
+      - install -D pygenius_desktop.py /app/share/pygenius/pygenius_desktop.py
+      - install -D pygenius /app/bin/pygenius
+      - install -D com.pygeniusai.desktop.desktop /app/share/applications/com.pygeniusai.desktop.desktop
+      - install -D com.pygeniusai.desktop.svg /app/share/icons/hicolor/scalable/apps/com.pygeniusai.desktop.svg
+      - install -D com.pygeniusai.desktop.metainfo.xml /app/share/metainfo/com.pygeniusai.desktop.metainfo.xml
+    sources:
+      - type: file
+        path: ../desktop-app/pygenius_desktop.py
+      - type: file
+        path: pygenius
+      - type: file
+        path: com.pygeniusai.desktop.desktop
+      - type: file
+        path: com.pygeniusai.desktop.svg
+      - type: file
+        path: com.pygeniusai.desktop.metainfo.xml

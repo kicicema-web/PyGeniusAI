@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="#1e1e1e"/>
+  
+  <!-- Python logo style snake -->
+  <path d="M64 16c-13 0-24 2-24 13v10h26v4H32c-11 0-20 6-20 21v33c0 11 6 20 20 20h8V82c0-11 6-19 20-19h26c11 0 20-6 20-20V29c0-11-9-13-20-13zm-14 7c3 0 5 2 5 5s-2 5-5 5-5-2-5-5 2-5 5-5z" fill="#3776ab"/>
+  <path d="M92 40v15c0 12-6 19-20 19H46c-11 0-20 6-20 20v12c0 11 9 15 20 15h40c11 0 20-4 20-15V40zm-33 58c3 0 5 2 5 5s-2 5-5 5-5-2-5-5 2-5 5-5z" fill="#ffd43b"/>
+  
+  <!-- AI sparkle -->
+  <path d="M100 24l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z" fill="#fff"/>
+</svg>

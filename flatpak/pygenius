@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+
+# Check for requests
+try:
+    import requests
+except ImportError:
+    print("Error: requests module not found")
+    sys.exit(1)
+
+# Run the app
+pygenius_desktop = "/app/share/pygenius/pygenius_desktop.py"
+if os.path.exists(pygenius_desktop):
+    subprocess.call([sys.executable, pygenius_desktop])
+else:
+    print(f"Error: Could not find {pygenius_desktop}")
+    sys.exit(1)

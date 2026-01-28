@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.pygeniusai.desktop</id>
+  
+  <name>PyGenius AI</name>
+  <summary>Python coding assistant with AI-powered features</summary>
+  
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  
+  <description>
+    <p>
+      PyGenius AI is a Python coding assistant with AI-powered features to help you learn and write better code.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Code editor with syntax highlighting</li>
+      <li>Interactive console with Python execution</li>
+      <li>AI Tutor powered by OpenRouter (GPT-3.5)</li>
+      <li>Code explanation and optimization</li>
+      <li>Bug detection and error analysis</li>
+      <li>Voice to code (Android only)</li>
+      <li>Interactive lessons</li>
+    </ul>
+    <p>
+      All AI features work out of the box with a pre-configured API key. Just install and start coding!
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">com.pygeniusai.desktop.desktop</launchable>
+  
+  <screenshots>
+    <screenshot type="default">
+      <caption>Code Editor with AI features</caption>
+    </screenshot>
+  </screenshots>
+  
+  <url type="homepage">https://github.com/kicicema-web/PyGeniusAI</url>
+  <url type="bugtracker">https://github.com/kicicema-web/PyGeniusAI/issues</url>
+  
+  <content_rating type="oars-1.1" />
+  
+  <releases>
+    <release version="1.0.2" date="2024-01-28">
+      <description>
+        <ul>
+          <li>Fixed console input - can now type commands directly in console</li>
+          <li>Added interactive Python REPL-like experience</li>
+          <li>Improved AI integration with OpenRouter</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.1" date="2024-01-28">
+      <description>
+        <ul>
+          <li>Switched from DeepSeek to OpenRouter AI</li>
+          <li>Pre-configured API key for instant use</li>
+          <li>Added desktop versions for Windows, Linux, and macOS</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.0" date="2024-01-27">
+      <description>
+        <p>Initial release of PyGenius AI</p>
+      </description>
+    </release>
+  </releases>
+  
+  <developer_name>PyGenius AI Team</developer_name>
+  <update_contact>https://github.com/kicicema-web/PyGeniusAI/issues</update_contact>
+</component>
