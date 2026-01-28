@@ -2,36 +2,85 @@ import SwiftUI
 
 struct ConsoleView: View {
     @EnvironmentObject var viewModel: PyGeniusViewModel
+    @State private var inputText: String = ""
+    @FocusState private var isInputFocused: Bool
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(viewModel.consoleOutput) { line in
-                            ConsoleLineView(line: line)
+                // Console Output
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 4) {
+                            ForEach(viewModel.consoleOutput) { line in
+                                ConsoleLineView(line: line)
+                                    .id(line.id)
+                            }
+                        }
+                        .padding()
+                    }
+                    .background(Color.black)
+                    .foregroundColor(.white)
+                    .onChange(of: viewModel.consoleOutput.count) { _ in
+                        if let last = viewModel.consoleOutput.last {
+                            withAnimation {
+                                proxy.scrollTo(last.id, anchor: .bottom)
+                            }
                         }
                     }
-                    .padding()
                 }
-                .background(Color.black)
-                .foregroundColor(.white)
                 
-                HStack {
-                    Button(action: { viewModel.clearConsole() }) {
-                        Label("Clear", systemImage: "trash")
+                // Input Area
+                VStack(spacing: 0) {
+                    Divider()
+                    
+                    HStack(spacing: 8) {
+                        TextField(">>>", text: $inputText)
+                            .font(.system(.body, design: .monospaced))
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                            .focused($isInputFocused)
+                            .onSubmit {
+                                submitInput()
+                            }
+                        
+                        Button(action: submitInput) {
+                            Image(systemName: "return")
+                                .font(.system(size: 20, weight: .semibold))
+                        }
+                        .disabled(inputText.isEmpty)
+                        .buttonStyle(.borderedProminent)
+                        .tint(.green)
                     }
-                    Spacer()
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
+                .background(Color(.systemBackground))
+            }
+            .navigationTitle("Console")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { viewModel.clearConsole() }) {
+                        Image(systemName: "trash")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
                     if viewModel.isRunning {
                         ProgressView()
                     }
                 }
-                .padding()
-                .background(Color(.systemGray6))
             }
-            .navigationTitle("Console")
-            .navigationBarTitleDisplayMode(.inline)
         }
+    }
+    
+    private func submitInput() {
+        guard !inputText.isEmpty else { return }
+        viewModel.executeConsoleInput(inputText)
+        inputText = ""
+        isInputFocused = true
     }
 }
 
@@ -43,6 +92,7 @@ struct ConsoleLineView: View {
             .font(.system(.body, design: .monospaced))
             .foregroundColor(colorForType(line.type))
             .frame(maxWidth: .infinity, alignment: .leading)
+            .textSelection(.enabled)
     }
     
     func colorForType(_ type: LineType) -> Color {

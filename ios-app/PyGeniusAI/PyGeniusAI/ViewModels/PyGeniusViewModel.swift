@@ -46,6 +46,64 @@ class PyGeniusViewModel: ObservableObject {
         consoleOutput.append(line)
     }
     
+    func executeConsoleInput(_ input: String) {
+        // Add the input to console
+        addConsoleLine(">>> \(input)", type: .input)
+        
+        // Try to execute as Python code
+        Task {
+            isRunning = true
+            
+            // For now, echo back that execution would happen here
+            // In a full implementation, this would use PythonKit or a server
+            addConsoleLine("Executing: \(input)", type: .info)
+            
+            // Simulate some processing
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+            
+            // Try to evaluate simple expressions
+            if let result = evaluateSimpleExpression(input) {
+                addConsoleLine("\(result)", type: .output)
+            } else {
+                addConsoleLine("Note: Full Python execution requires Python runtime integration.", type: .info)
+                addConsoleLine("Use the Run button in the Editor to execute full scripts.", type: .info)
+            }
+            
+            isRunning = false
+        }
+    }
+    
+    private func evaluateSimpleExpression(_ expression: String) -> String? {
+        // Simple evaluator for basic math and strings
+        let trimmed = expression.trimmingCharacters(in: .whitespaces)
+        
+        // Try to evaluate as a simple math expression
+        let mathChars = CharacterSet(charactersIn: "0123456789+-*/(). ")
+        if trimmed.rangeOfCharacter(from: mathChars.inverted) == nil {
+            let exp = NSExpression(format: trimmed)
+            if let result = exp.expressionValue(with: nil, context: nil) {
+                return "\(result)"
+            }
+        }
+        
+        // Check for print statements - extract the content
+        if trimmed.hasPrefix("print(") && trimmed.hasSuffix(")") {
+            let start = trimmed.index(trimmed.startIndex, offsetBy: 6)
+            let end = trimmed.index(trimmed.endIndex, offsetBy: -1)
+            let content = String(trimmed[start..<end])
+            
+            // Remove quotes if present
+            var output = content
+            if (content.hasPrefix("\"") && content.hasSuffix("\"")) ||
+               (content.hasPrefix("'") && content.hasSuffix("'")) {
+                output = String(content.dropFirst().dropLast())
+            }
+            return output
+        }
+        
+        return nil
+    }
+    
     func askAI(_ question: String) {
         guard !question.isEmpty else { return }
         let userResponse = AIResponse(text: question, isUser: true, timestamp: Date())

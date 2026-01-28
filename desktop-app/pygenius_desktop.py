@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 PyGenius AI - Desktop Edition
-A Python coding assistant with AI-powered features for Windows
+A Python coding assistant with AI-powered features for Windows, Linux, and macOS
 """
 
 import tkinter as tk
@@ -46,6 +46,9 @@ class PyGeniusDesktop:
         # Current file
         self.current_file = None
         self.is_modified = False
+        
+        # Execution namespace for console
+        self.console_namespace = {"__name__": "__console__"}
         
         # Bind keyboard shortcuts
         self.bind_shortcuts()
@@ -181,6 +184,7 @@ print(result)
         ttk.Button(console_header, text="Clear", command=self.clear_console).pack(side=tk.RIGHT)
         ttk.Button(console_header, text="Run (F5)", command=self.run_code).pack(side=tk.RIGHT, padx=5)
         
+        # Console output
         self.console = scrolledtext.ScrolledText(
             console_frame,
             wrap=tk.WORD,
@@ -188,9 +192,21 @@ print(result)
             bg="#0c0c0c",
             fg="#cccccc",
             state='disabled',
-            height=15
+            height=12
         )
         self.console.pack(fill=tk.BOTH, expand=True)
+        
+        # Console input frame
+        input_frame = ttk.Frame(console_frame)
+        input_frame.pack(fill=tk.X, pady=(5, 0))
+        
+        ttk.Label(input_frame, text=">>>", font=('Consolas', 10)).pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.console_input = ttk.Entry(input_frame, font=('Consolas', 10))
+        self.console_input.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
+        self.console_input.bind('<Return>', self.on_console_input)
+        
+        ttk.Button(input_frame, text="Execute", command=lambda: self.on_console_input(None)).pack(side=tk.RIGHT)
         
         # AI Tutor tab
         ai_frame = ttk.Frame(self.notebook)
@@ -225,11 +241,39 @@ print(result)
         # Status bar
         self.status_bar = ttk.Label(
             self.root,
-            text="Ready | AI: Connected | Press F5 to run",
+            text="Ready | AI: Connected | Type in console and press Enter to execute",
             relief=tk.SUNKEN,
             anchor=tk.W
         )
         self.status_bar.pack(fill=tk.X, side=tk.BOTTOM)
+        
+    def on_console_input(self, event):
+        """Handle console input"""
+        code = self.console_input.get().strip()
+        if not code:
+            return
+        
+        # Show input in console
+        self.log_to_console(f">>> {code}", "input")
+        self.console_input.delete(0, tk.END)
+        
+        # Execute in separate thread
+        def execute():
+            try:
+                # Try to evaluate first (for expressions)
+                try:
+                    result = eval(code, self.console_namespace)
+                    if result is not None:
+                        self.root.after(0, lambda: self.log_to_console(str(result), "output"))
+                except SyntaxError:
+                    # If eval fails, use exec (for statements)
+                    exec(code, self.console_namespace)
+                except Exception as e:
+                    self.root.after(0, lambda: self.log_to_console(f"Error: {str(e)}", "error"))
+            except Exception as e:
+                self.root.after(0, lambda: self.log_to_console(f"Error: {str(e)}", "error"))
+        
+        threading.Thread(target=execute, daemon=True).start()
         
     def update_line_numbers(self, event=None):
         """Update line numbers"""
@@ -307,6 +351,8 @@ print(result)
         self.console.config(state='normal')
         self.console.delete('1.0', tk.END)
         self.console.config(state='disabled')
+        # Clear namespace
+        self.console_namespace = {"__name__": "__console__"}
         
     def log_to_console(self, text, tag=""):
         """Add text to console"""
@@ -324,7 +370,7 @@ print(result)
         self.ai_output.config(state='disabled')
         
     def run_code(self):
-        """Execute Python code"""
+        """Execute Python code from editor"""
         code = self.code_editor.get('1.0', tk.END)
         self.clear_console()
         self.log_to_console("=== Running Python Code ===\n")
