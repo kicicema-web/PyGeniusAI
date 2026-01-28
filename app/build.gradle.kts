@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.pygeniusai"
     compileSdk = 34
+    buildToolsVersion = "34.0.0"
 
     defaultConfig {
         applicationId = "com.pygeniusai"
@@ -82,6 +83,9 @@ dependencies {
     
     // JSON
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // Networking - OkHttp for DeepSeek API
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     // Testing
     testImplementation("junit:junit:4.13.2")
