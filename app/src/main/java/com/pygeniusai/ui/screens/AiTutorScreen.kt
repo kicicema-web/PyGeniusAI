@@ -22,8 +22,12 @@ fun AiTutorScreen(
     aiResponse: String,
     isProcessing: Boolean,
     lastError: ErrorExplanation?,
+    apiKeyStatus: com.pygeniusai.ui.viewmodel.ApiKeyStatus = com.pygeniusai.ui.viewmodel.ApiKeyStatus.UNKNOWN,
     onAskQuestion: (String) -> Unit,
     onExplainCode: () -> Unit,
+    onOptimizeCode: () -> Unit = {},
+    onGoToSettings: () -> Unit = {},
+    onClearResponse: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var question by remember { mutableStateOf("") }
