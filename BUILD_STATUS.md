@@ -7,14 +7,14 @@
 - Jetpack Compose UI with 6 screens (Editor, Console, AI Tutor, Learning, Packages, Settings)
 - Material Design 3 theming optimized for coding
 - Python syntax highlighting and code editor
-- **DeepSeek AI Integration** - Real AI via API with local fallback
+- **OpenRouter AI Integration** - Real AI via API with local fallback
 - Voice coding support structure
 - Package manager UI
 - Home screen widget
 - Background service for code execution
 
-### AI Features (DeepSeek Integration)
-- **DeepSeek API Integration**: Real AI responses using DeepSeek's chat API
+### AI Features (OpenRouter Integration)
+- **OpenRouter API Integration**: Real AI responses using OpenRouter's unified API (GPT-3.5)
 - **AI Tutor Chat**: Ask questions about Python, get intelligent answers
 - **Code Explanation**: AI-powered code analysis and explanation
 - **Error Explanation**: Smart error analysis with fix suggestions
@@ -23,7 +23,7 @@
 - **Lesson Generation**: AI-generated interactive Python lessons
 - **Voice-to-Code**: Convert natural language to Python code
 - **Local Fallback**: Pattern-based responses when API key not configured
-- **API Key Management**: Secure storage using DataStore
+- **Pre-configured API Key**: Ready to use out of the box
 
 ### Build Configuration
 - Gradle 8.5 wrapper configured
@@ -125,7 +125,7 @@ jobs:
 - **Kotlin Source Files**: 20
 - **Lines of Code**: ~10,000
 - **UI Screens**: 6
-- **AI Features**: 10+ intelligent features powered by DeepSeek
+- **AI Features**: 10+ intelligent features powered by OpenRouter
 
 ## 🚀 Next Steps
 
@@ -144,7 +144,7 @@ jobs:
 |---------|--------|-------------|
 | Code Editor | ✅ Ready | Syntax highlighting, line numbers |
 | Console Output | ✅ Ready | Real-time output display |
-| AI Tutor | ✅ **DeepSeek** | Real AI-powered tutoring |
+| AI Tutor | ✅ **OpenRouter** | Real AI-powered tutoring |
 | Learning Mode | ✅ Ready | Interactive Python lessons |
 | Package Manager | ✅ Ready | Pip integration UI |
 | Settings | ✅ **NEW** | API key management |
@@ -158,15 +158,21 @@ The app is **complete with real AI** and ready to build on a standard Android de
 
 ## 🆕 Recent Changes
 
-### DeepSeek AI Integration (2026-01-28)
-- Added `DeepSeekService.kt` - Full API integration
-- Added `ApiKeyProvider.kt` - Secure key storage
+### OpenRouter AI Integration (2026-01-28)
+- Added `OpenRouterService.kt` - Full API integration
+- Added `ApiKeys.kt` - Hardcoded API key (gitignored)
 - Updated `AiEngine.kt` - Hybrid local/AI responses
 - Updated `PyGeniusViewModel.kt` - New AI methods
-- Added `SettingsScreen.kt` - API key configuration
+- Updated `SettingsScreen.kt` - AI status display
 - Updated `AiTutorScreen.kt` - Status indicators
 - Updated `MainActivity.kt` - Settings tab
 - Added OkHttp dependency for networking
+
+### Switch from DeepSeek to OpenRouter (2026-01-28)
+- Replaced DeepSeek API with OpenRouter
+- Hardcoded API key for ease of use
+- Removed manual API key configuration
+- Simplified Settings screen
 
 ### AI Capabilities
 1. **askTutor()** - Ask any Python question

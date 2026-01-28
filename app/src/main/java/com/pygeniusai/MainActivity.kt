@@ -126,6 +126,7 @@ fun PyGeniusApp(
     val lessonCode by viewModel.lessonCode.collectAsStateWithLifecycle()
     val installedPackages by viewModel.installedPackages.collectAsStateWithLifecycle()
     val pipSearchQuery by viewModel.pipSearchQuery.collectAsStateWithLifecycle()
+    val apiKeyStatus by viewModel.apiKeyStatus.collectAsStateWithLifecycle()
     
     // Dialog states
     var showFileDialog by remember { mutableStateOf(false) }
@@ -139,16 +140,42 @@ fun PyGeniusApp(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 actions = {
+                    // AI Status indicator
+                    if (apiKeyStatus == com.pygeniusai.ui.viewmodel.ApiKeyStatus.CONFIGURED) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.SmartToy,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "AI Ready",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
                     // Python version indicator
                     Surface(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
                         shape = MaterialTheme.shapes.small
                     ) {
                         Text(
                             text = "Python 3.11",
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                 }
@@ -181,10 +208,10 @@ fun PyGeniusApp(
                     onClick = { viewModel.selectTab(Tab.AI_TUTOR) }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Download, contentDescription = null) },
-                    label = { Text("Pip") },
-                    selected = selectedTab == Tab.PACKAGES,
-                    onClick = { viewModel.selectTab(Tab.PACKAGES) }
+                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                    label = { Text("Settings") },
+                    selected = selectedTab == Tab.SETTINGS,
+                    onClick = { viewModel.selectTab(Tab.SETTINGS) }
                 )
             }
         }
@@ -222,8 +249,12 @@ fun PyGeniusApp(
                     aiResponse = aiResponse,
                     isProcessing = isAiProcessing,
                     lastError = lastError,
+                    apiKeyStatus = apiKeyStatus,
                     onAskQuestion = viewModel::askAi,
-                    onExplainCode = viewModel::getCodeExplanation
+                    onExplainCode = viewModel::getCodeExplanation,
+                    onOptimizeCode = viewModel::optimizeCode,
+                    onGoToSettings = { viewModel.selectTab(Tab.SETTINGS) },
+                    onClearResponse = viewModel::clearAiResponse
                 )
                 
                 Tab.LEARNING -> LearningScreen(
@@ -241,6 +272,10 @@ fun PyGeniusApp(
                     onSearchQueryChange = viewModel::updatePipSearch,
                     onInstall = viewModel::installPackage,
                     onUninstall = viewModel::uninstallPackage
+                )
+                
+                Tab.SETTINGS -> SettingsScreen(
+                    apiKeyStatus = apiKeyStatus
                 )
             }
         }

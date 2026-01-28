@@ -1,0 +1,65 @@
+# Gradle files
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Keystore files (DO NOT COMMIT)
+*.jks
+*.keystore
+
+# API Keys and Secrets (DO NOT COMMIT)
+*.secret
+*.key
+api-keys.properties
+secrets.properties
+app/src/main/java/com/pygeniusai/ai/ApiKeys.kt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Android captures
+captures/
+
+# External native build folder
+.externalNativeBuild/
+.cxx/
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Version control
+.vcs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+
+# Kotlin
+.kotlin/
+
+# Python (for Chaquopy)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so

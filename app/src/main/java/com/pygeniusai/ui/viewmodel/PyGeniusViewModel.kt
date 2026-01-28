@@ -59,6 +59,10 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
     private val _isAiProcessing = MutableStateFlow(false)
     val isAiProcessing: StateFlow<Boolean> = _isAiProcessing.asStateFlow()
     
+    // API Key state
+    private val _apiKeyStatus = MutableStateFlow<ApiKeyStatus>(ApiKeyStatus.UNKNOWN)
+    val apiKeyStatus: StateFlow<ApiKeyStatus> = _apiKeyStatus.asStateFlow()
+    
     // Learning mode state
     private val _currentLesson = MutableStateFlow<Lesson?>(null)
     val currentLesson: StateFlow<Lesson?> = _currentLesson.asStateFlow()
@@ -84,6 +88,7 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
     
     init {
         loadSavedScripts()
+        checkApiKeyStatus()
     }
     
     // Editor operations
@@ -96,7 +101,6 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
         analysisJob = viewModelScope.launch {
             delay(800) // Wait for user to stop typing
             analyzeCodeForBugs()
-            updateAiSuggestions()
         }
     }
     
@@ -168,73 +172,97 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
     
     // AI operations
     private suspend fun analyzeCodeForBugs() {
+        _isAiProcessing.value = true
         val predictions = aiEngine.analyzeForBugs(_code.value)
         _bugPredictions.value = predictions
-    }
-    
-    private suspend fun updateAiSuggestions() {
-        // Get contextual suggestions based on cursor position
-        // For now, we use simple pattern matching
+        _isAiProcessing.value = false
     }
     
     fun getCodeExplanation() {
-        viewModelScope.launch {
+        aiJob?.cancel()
+        aiJob = viewModelScope.launch {
             _isAiProcessing.value = true
+            _aiResponse.value = "Analyzing your code..."
+            
             _aiResponse.value = aiEngine.explainCode(_code.value)
             _isAiProcessing.value = false
         }
     }
     
     fun askAi(question: String) {
-        viewModelScope.launch {
+        aiJob?.cancel()
+        aiJob = viewModelScope.launch {
             _isAiProcessing.value = true
             _aiResponse.value = "Thinking..."
-            delay(500) // Simulate processing
             
-            _aiResponse.value = when {
-                question.contains("error") || question.contains("fix") -> {
-                    "I can help you fix errors! Let me analyze your code..."
-                }
-                question.contains("explain") -> {
-                    aiEngine.explainCode(_code.value)
-                }
-                question.contains("optimize") -> {
-                    "Your code looks good! Consider using list comprehensions for cleaner syntax."
-                }
-                else -> {
-                    "I'm your AI Python tutor! I can:\n" +
-                    "• Explain your code\n" +
-                    "• Help fix errors\n" +
-                    "• Suggest improvements\n" +
-                    "• Guide you through lessons"
-                }
-            }
+            val response = aiEngine.askTutor(question, _code.value)
+            _aiResponse.value = response
+            _isAiProcessing.value = false
+        }
+    }
+    
+    fun optimizeCode() {
+        aiJob?.cancel()
+        aiJob = viewModelScope.launch {
+            _isAiProcessing.value = true
+            _aiResponse.value = "Analyzing for optimizations..."
+            
+            val response = aiEngine.optimizeCode(_code.value)
+            _aiResponse.value = response
             _isAiProcessing.value = false
         }
     }
     
     fun voiceToCode(spokenText: String) {
         viewModelScope.launch {
+            _isAiProcessing.value = true
             val generatedCode = aiEngine.voiceToCode(spokenText)
             _code.value = _code.value + "\n" + generatedCode
+            _isAiProcessing.value = false
         }
     }
     
     fun fixCodeAtLine(lineNumber: Int) {
         val predictions = _bugPredictions.value.filter { it.line == lineNumber }
         if (predictions.isNotEmpty()) {
-            // Apply the first fix suggestion
-            val fix = predictions.first().fixSuggestion
-            _aiResponse.value = "Suggested fix: $fix"
+            val fix = predictions.first()
+            _aiResponse.value = """🐛 Issue on line ${fix.line}: ${fix.message}
+                |
+                |💡 Suggested fix:
+                |${fix.fixSuggestion}
+                |
+                |⚠️ Severity: ${fix.severity}""".trimMargin()
+        }
+    }
+    
+    // API Key Management
+    fun saveApiKey(apiKey: String) {
+        viewModelScope.launch {
+            _isAiProcessing.value = true
+            aiEngine.saveApiKey(apiKey)
+            checkApiKeyStatus()
+            _isAiProcessing.value = false
+        }
+    }
+    
+    private fun checkApiKeyStatus() {
+        viewModelScope.launch {
+            _apiKeyStatus.value = if (aiEngine.isAiAvailable) {
+                ApiKeyStatus.CONFIGURED
+            } else {
+                ApiKeyStatus.NOT_CONFIGURED
+            }
         }
     }
     
     // Learning mode
     fun loadLesson(type: LessonType, level: DifficultyLevel) {
         viewModelScope.launch {
+            _isAiProcessing.value = true
             val lesson = aiEngine.generateLesson(type, level)
             _currentLesson.value = lesson
             _lessonCode.value = lesson.code
+            _isAiProcessing.value = false
         }
     }
     
@@ -244,12 +272,38 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
     
     fun checkLessonSolution() {
         val lesson = _currentLesson.value ?: return
-        // Simple check - in production, use more sophisticated validation
-        if (_lessonCode.value.trim().equals(lesson.solution.trim(), ignoreCase = true)) {
-            _aiResponse.value = "✓ Correct! Well done!"
-            userProgress.markLessonCompleted(lesson.title)
-        } else {
-            _aiResponse.value = "Keep trying! Check the hints if you need help."
+        viewModelScope.launch {
+            _isAiProcessing.value = true
+            
+            // Use AI to check if the solution is correct
+            val prompt = """Check if this code solves the challenge:
+                |
+                |Challenge: ${lesson.challenge}
+                |
+                |User's code:
+                |```python
+                |${_lessonCode.value}
+                |```
+                |
+                |Expected solution:
+                |```python
+                |${lesson.solution}
+                |```
+                |
+                |Is this correct? Provide brief feedback.""".trimMargin()
+            
+            val feedback = aiEngine.askTutor(prompt, "")
+            
+            if (feedback.contains("correct", ignoreCase = true) || 
+                feedback.contains("✓", ignoreCase = true) ||
+                _lessonCode.value.trim().equals(lesson.solution.trim(), ignoreCase = true)) {
+                _aiResponse.value = "✓ $feedback"
+                userProgress.markLessonCompleted(lesson.title)
+            } else {
+                _aiResponse.value = feedback
+            }
+            
+            _isAiProcessing.value = false
         }
     }
     
@@ -275,6 +329,11 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
         _selectedTab.value = tab
     }
     
+    // Clear AI response
+    fun clearAiResponse() {
+        _aiResponse.value = ""
+    }
+    
     override fun onCleared() {
         super.onCleared()
         aiJob?.cancel()
@@ -284,7 +343,7 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
     companion object {
         val DEFAULT_CODE = """
             # Welcome to PyGenius AI!
-            # This is your Python coding environment
+            # This is your Python coding environment with AI assistance
             
             def greet(name):
                 return f"Hello, {name}!"
@@ -293,11 +352,16 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
             message = greet("Python Developer")
             print(message)
             
-            # Tap the AI Tutor tab for help!
+            # Tap the AI Tutor tab for intelligent help!
+            # AI features are ready to use!
         """.trimIndent()
     }
 }
 
 enum class Tab {
-    EDITOR, CONSOLE, AI_TUTOR, LEARNING, PACKAGES
+    EDITOR, CONSOLE, AI_TUTOR, LEARNING, PACKAGES, SETTINGS
+}
+
+enum class ApiKeyStatus {
+    UNKNOWN, NOT_CONFIGURED, CONFIGURED
 }
