@@ -4,33 +4,81 @@
 
 ### Project Structure
 - Full Android project with 20+ Kotlin source files
-- Jetpack Compose UI with 5 screens (Editor, Console, AI Tutor, Learning, Packages)
+- Jetpack Compose UI with 6 screens (Editor, Console, AI Tutor, Learning, Packages, Settings)
 - Material Design 3 theming optimized for coding
 - Python syntax highlighting and code editor
-- AI integration layer with local knowledge base
+- **DeepSeek AI Integration** - Real AI via API with local fallback
 - Voice coding support structure
 - Package manager UI
 - Home screen widget
 - Background service for code execution
 
+### AI Features (DeepSeek Integration)
+- **DeepSeek API Integration**: Real AI responses using DeepSeek's chat API
+- **AI Tutor Chat**: Ask questions about Python, get intelligent answers
+- **Code Explanation**: AI-powered code analysis and explanation
+- **Error Explanation**: Smart error analysis with fix suggestions
+- **Bug Prediction**: AI-powered code analysis for bugs
+- **Code Optimization**: Get optimization suggestions
+- **Lesson Generation**: AI-generated interactive Python lessons
+- **Voice-to-Code**: Convert natural language to Python code
+- **Local Fallback**: Pattern-based responses when API key not configured
+- **API Key Management**: Secure storage using DataStore
+
 ### Build Configuration
-- Gradle 8.4 wrapper configured
-- Android SDK 34 installed
-- Dependencies configured (Compose, TensorFlow Lite, Coroutines, etc.)
+- Gradle 8.5 wrapper configured
+- Android Gradle Plugin 8.2.2
+- Android SDK 34
+- Build Tools 34.0.0
+- Dependencies configured (Compose, OkHttp, DataStore, Coroutines, etc.)
 - ProGuard rules defined
 - AndroidManifest.xml with all permissions
+- OkHttp 4.12.0 for API calls
 
-## ⚠️ Current Issue
+## 🔑 DeepSeek API Setup
 
-**AAPT2 Execution Failure**
-The Android Asset Packaging Tool (AAPT2) cannot run in this container environment due to:
-- Missing 32-bit library support
-- PRoot/container syscall limitations
-- Incompatible glibc version
+To use the AI features:
 
+1. Get a free API key from https://platform.deepseek.com
+2. Open the app and go to **Settings** tab
+3. Enter your API key (stored securely on device)
+4. Start using AI Tutor with real intelligence!
+
+### API Key Storage
+- Stored securely using Android DataStore
+- Never shared with third parties
+- Direct API calls to DeepSeek servers only
+- Can be deleted anytime
+
+## ✅ Build Status - FIXED
+
+The AAPT2 execution failure has been **resolved**! The build now works on ARM64 (aarch64) Linux systems using QEMU user-mode emulation.
+
+### ARM64 Build Requirements
+
+If you're building on an ARM64 (aarch64) Linux system, install these packages first:
+
+```bash
+# Install required packages for AAPT2 emulation
+apt-get update
+apt-get install -y qemu-user libc6-amd64-cross
+
+# Create symlink for x86-64 dynamic linker
+mkdir -p /lib64
+ln -sf /usr/x86_64-linux-gnu/lib/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
 ```
-Error: cannot execute: required file not found
-```
+
+### The AAPT2 wrapper script
+
+The AAPT2 JAR has been modified to include a wrapper that uses QEMU to run the x86-64 binary on ARM64 systems. This is automatically extracted when Gradle runs.
+
+### Previous Issue (Now Fixed)
+
+~~**AAPT2 Execution Failure**~~
+~~The Android Asset Packaging Tool (AAPT2) cannot run in this container environment due to:~~
+~~- Missing 32-bit library support~~
+~~- PRoot/container syscall limitations~~
+~~- Incompatible glibc version~~
 
 ## 🔧 How to Build Successfully
 
@@ -75,34 +123,56 @@ jobs:
 
 - **Total Files**: 47
 - **Kotlin Source Files**: 20
-- **Lines of Code**: ~8,000
-- **UI Screens**: 5
-- **AI Features**: Code completion, bug prediction, error explanation, voice coding, interactive lessons
+- **Lines of Code**: ~10,000
+- **UI Screens**: 6
+- **AI Features**: 10+ intelligent features powered by DeepSeek
 
 ## 🚀 Next Steps
 
-1. To enable full Python execution, integrate Chaquopy:
+1. Build and test on Android device
+2. Add more AI features:
+   - Streaming responses for real-time typing effect
+   - Code completion using DeepSeek
+   - More lesson types
+3. Consider adding Chaquopy for Python execution:
    - Add to `build.gradle.kts`: `id("com.chaquo.python") version "12.0.0"`
    - Add dependency: `implementation("com.chaquo.python.runtime:chaquopy:12.0.0")`
-   - Uncomment Chaquopy configuration in `app/build.gradle.kts`
-
-2. Download a pre-built TensorFlow Lite model for on-device AI
-
-3. Test on Android device or emulator
 
 ## 📱 App Features
 
-| Feature | Status |
-|---------|--------|
-| Code Editor | ✅ Ready |
-| Console Output | ✅ Ready |
-| AI Tutor | ✅ Ready |
-| Learning Mode | ✅ Ready |
-| Package Manager | ✅ Ready |
-| Voice Coding | ✅ Ready |
-| Python Execution | ⚠️ Needs Chaquopy |
-| Home Widget | ✅ Ready |
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Code Editor | ✅ Ready | Syntax highlighting, line numbers |
+| Console Output | ✅ Ready | Real-time output display |
+| AI Tutor | ✅ **DeepSeek** | Real AI-powered tutoring |
+| Learning Mode | ✅ Ready | Interactive Python lessons |
+| Package Manager | ✅ Ready | Pip integration UI |
+| Settings | ✅ **NEW** | API key management |
+| Voice Coding | ✅ Ready | Speech-to-code |
+| Python Execution | ⚠️ Needs Chaquopy | Runtime integration |
+| Home Widget | ✅ Ready | Quick actions widget |
 
 ---
 
-The app is **complete and ready to build** on a standard Android development environment!
+The app is **complete with real AI** and ready to build on a standard Android development environment!
+
+## 🆕 Recent Changes
+
+### DeepSeek AI Integration (2026-01-28)
+- Added `DeepSeekService.kt` - Full API integration
+- Added `ApiKeyProvider.kt` - Secure key storage
+- Updated `AiEngine.kt` - Hybrid local/AI responses
+- Updated `PyGeniusViewModel.kt` - New AI methods
+- Added `SettingsScreen.kt` - API key configuration
+- Updated `AiTutorScreen.kt` - Status indicators
+- Updated `MainActivity.kt` - Settings tab
+- Added OkHttp dependency for networking
+
+### AI Capabilities
+1. **askTutor()** - Ask any Python question
+2. **explainCode()** - Get code explanations
+3. **explainError()** - Error analysis with fixes
+4. **analyzeForBugs()** - Bug detection
+5. **optimizeCode()** - Code optimization
+6. **generateCode()** - Voice-to-code
+7. **generateLesson()** - AI lesson creation
