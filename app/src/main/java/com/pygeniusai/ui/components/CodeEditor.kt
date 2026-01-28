@@ -206,30 +206,15 @@ fun SyntaxHighlightedCode(
 private fun highlightPythonSyntax(code: String): AnnotatedString {
     return buildAnnotatedString {
         val lines = code.lines()
+        val keywords = listOf(
+            "and", "as", "assert", "break", "class", "continue", "def",
+            "del", "elif", "else", "except", "False", "finally", "for",
+            "from", "global", "if", "import", "in", "is", "lambda",
+            "None", "nonlocal", "not", "or", "pass", "raise", "return",
+            "True", "try", "while", "with", "yield"
+        )
         
-        lines.forEachIndexed { lineIndex, line ->
-            var currentIndex = 0
-            
-            // Keywords
-            val keywords = listOf(
-                "and", "as", "assert", "break", "class", "continue", "def",
-                "del", "elif", "else", "except", "False", "finally", "for",
-                "from", "global", "if", "import", "in", "is", "lambda",
-                "None", "nonlocal", "not", "or", "pass", "raise", "return",
-                "True", "try", "while", "with", "yield"
-            )
-            
-            // Simple regex-like pattern matching
-            val patterns = listOf(
-                Triple("#.*$".toRegex(), PyGeniusColors.CodeComment, null),  // Comments
-                Triple("\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''".toRegex(), PyGeniusColors.CodeString, null),  // Multi-line strings
-                Triple("\"[^\"]*\"|'[^']*'".toRegex(), PyGeniusColors.CodeString, null),  // Strings
-                Triple("\\b\\d+\\.?\\d*\\b".toRegex(), PyGeniusColors.CodeNumber, null),  // Numbers
-                Triple("\\b(${keywords.joinToString("|")})\\b".toRegex(), PyGeniusColors.CodeKeyword, null),  // Keywords
-                Triple("\\b[A-Z][a-zA-Z0-9_]*\\b".toRegex(), PyGeniusColors.CodeClass, null),  // Class names
-                Triple("\\b[a-z_][a-zA-Z0-9_]*\\s*(?=\\()".toRegex(), PyGeniusColors.CodeFunction, null),  // Function calls
-            )
-            
+        lines.forEachIndexed { index, line ->
             // Simple highlighting - just color the whole line based on content
             when {
                 line.trimStart().startsWith("#") -> {
@@ -237,9 +222,9 @@ private fun highlightPythonSyntax(code: String): AnnotatedString {
                         append(line)
                     }
                 }
-                line.contains("\""") || line.contains("'") -> {
+                line.contains("\"") || line.contains("'") -> {
                     // Very basic string highlighting
-                    val parts = line.split("\"".toRegex())
+                    val parts = line.split("\"")
                     parts.forEachIndexed { i, part ->
                         if (i % 2 == 0) {
                             append(part)
@@ -250,7 +235,7 @@ private fun highlightPythonSyntax(code: String): AnnotatedString {
                         }
                     }
                 }
-                keywords.any { line.contains("\\b$it\\b".toRegex()) } -> {
+                keywords.any { keyword -> line.contains("\\b$keyword\\b".toRegex()) } -> {
                     withStyle(SpanStyle(color = PyGeniusColors.CodeKeyword)) {
                         append(line)
                     }
@@ -260,13 +245,14 @@ private fun highlightPythonSyntax(code: String): AnnotatedString {
                 }
             }
             
-            if (lineIndex < lines.size - 1) {
+            if (index < lines.size - 1) {
                 append("\n")
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CodeCompletionSuggestion(
     suggestion: String,

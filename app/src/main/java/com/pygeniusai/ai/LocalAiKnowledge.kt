@@ -248,7 +248,7 @@ class LocalAiKnowledge {
     }
     
     companion object {
-        private const val BASIC_VARIABLES_CODE = """
+        private val BASIC_VARIABLES_CODE = """
 # Variables are containers for data
 name = "Alice"      # String (text)
 age = 25            # Integer (whole number)
@@ -259,14 +259,14 @@ is_student = True   # Boolean (True/False)
 print(f"{name} is {age} years old")
 """
 
-        private const val VARIABLES_SOLUTION = """
+        private val VARIABLES_SOLUTION = """
 food = "Pizza"
 price = 12.99
 is_delicious = True
-print(f"{food} costs \${price} and delicious={is_delicious}")
+print(f"{food} costs $" + "{price}" + " and delicious={is_delicious}")
 """
 
-        private const val BASIC_LOOPS_CODE = """
+        private val BASIC_LOOPS_CODE = """
 # For loop iterates over a sequence
 fruits = ["apple", "banana", "cherry"]
 
@@ -278,13 +278,13 @@ for i in range(5):
     print(i)  # Prints 0, 1, 2, 3, 4
 """
 
-        private const val LOOPS_SOLUTION = """
+        private val LOOPS_SOLUTION = """
 for i in range(1, 11):
     print(i)
 print("Done!")
 """
 
-        private const val INTERMEDIATE_LOOPS_CODE = """
+        private val INTERMEDIATE_LOOPS_CODE = """
 # Enumerate gives index and value
 items = ["a", "b", "c"]
 for index, value in enumerate(items):
@@ -297,14 +297,14 @@ for name, score in zip(names, scores):
     print(f"{name} scored {score}")
 """
 
-        private const val INTERMEDIATE_LOOPS_SOLUTION = """
+        private val INTERMEDIATE_LOOPS_SOLUTION = """
 items = ['apple', 'banana']
 prices = [1.50, 0.75]
 for item, price in zip(items, prices):
-    print(f"{item}: \${price}")
+    print(f"{item}: $" + "{price}")
 """
 
-        private const val FUNCTIONS_CODE = """
+        private val FUNCTIONS_CODE = """
 def greet(name):
     return f"Hello, {name}!"
 
@@ -313,7 +313,7 @@ message = greet("Alice")
 print(message)
 """
 
-        private const val FUNCTIONS_SOLUTION = """
+        private val FUNCTIONS_SOLUTION = """
 def square(n):
     return n ** 2
 
@@ -321,7 +321,7 @@ result = square(5)
 print(result)  # 25
 """
 
-        private const val CLASSES_CODE = """
+        private val CLASSES_CODE = """
 class Dog:
     def __init__(self, name):
         self.name = name
@@ -333,7 +333,7 @@ my_dog = Dog("Buddy")
 print(my_dog.bark())
 """
 
-        private const val CLASSES_SOLUTION = """
+        private val CLASSES_SOLUTION = """
 class Rectangle:
     def __init__(self, width, height):
         self.width = width
@@ -346,7 +346,7 @@ rect = Rectangle(5, 3)
 print(rect.area())  # 15
 """
 
-        private const val LIST_COMP_CODE = """
+        private val LIST_COMP_CODE = """
 # Traditional way
 squares = []
 for x in range(10):
@@ -359,9 +359,9 @@ squares = [x**2 for x in range(10)]
 even_squares = [x**2 for x in range(10) if x % 2 == 0]
 """
 
-        private const val LIST_COMP_SOLUTION = "result = [x for x in range(20) if x % 3 == 0]"
+        private val LIST_COMP_SOLUTION = "result = [x for x in range(20) if x % 3 == 0]"
 
-        private const val DICT_CODE = """
+        private val DICT_CODE = """
 # Dictionary: key -> value mapping
 student = {
     "name": "Alice",
@@ -379,7 +379,7 @@ major = student.get("major", "Undeclared")
 student["major"] = "Computer Science"
 """
 
-        private const val DICT_SOLUTION = """
+        private val DICT_SOLUTION = """
 phone_book = {
     "Alice": "555-0101",
     "Bob": "555-0102",
@@ -391,7 +391,7 @@ number = phone_book.get(name, "Not found")
 print(f"{name}: {number}")
 """
 
-        private const val VAR_UNPACK_CODE = """
+        private val VAR_UNPACK_CODE = """
 # Multiple assignment
 x, y, z = 1, 2, 3
 
@@ -403,13 +403,13 @@ a, b = b, a  # Now a=20, b=10!
 first, *rest = [1, 2, 3, 4, 5]
 """
 
-        private const val VAR_UNPACK_SOLUTION = """
+        private val VAR_UNPACK_SOLUTION = """
 coordinates = (10, 20, 30)
 x, y, z = coordinates
 print(f"x={x}, y={y}, z={z}")
 """
 
-        private const val GENERATOR_CODE = """
+        private val GENERATOR_CODE = """
 # Generator expression (lazy evaluation)
 squares = (x**2 for x in range(1000000))
 
@@ -417,7 +417,7 @@ squares = (x**2 for x in range(1000000))
 total = sum(x**2 for x in range(1000000))
 """
 
-        private const val GENERATOR_SOLUTION = """
+        private val GENERATOR_SOLUTION = """
 result = sum(x**2 for x in range(1, 1001))
 print(result)
 """
