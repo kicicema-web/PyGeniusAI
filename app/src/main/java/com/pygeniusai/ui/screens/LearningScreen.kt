@@ -57,6 +57,7 @@ fun LearningScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LessonSelector(
     selectedDifficulty: DifficultyLevel,
@@ -104,20 +105,18 @@ private fun LessonSelector(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Difficulty selector
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     DifficultyLevel.values().forEach { level ->
-                        SegmentedButton(
+                        FilterChip(
                             selected = selectedDifficulty == level,
                             onClick = { onDifficultySelected(level) },
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = level.ordinal,
-                                count = DifficultyLevel.values().size
-                            )
-                        ) {
-                            Text(level.name.lowercase().replaceFirstChar { it.uppercase() })
-                        }
+                            label = {
+                                Text(level.name.lowercase().replaceFirstChar { it.uppercase() })
+                            }
+                        )
                     }
                 }
             }
@@ -159,6 +158,7 @@ private fun LessonSelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LessonCard(
     title: String,

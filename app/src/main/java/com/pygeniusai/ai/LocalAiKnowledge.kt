@@ -263,7 +263,7 @@ print(f"{name} is {age} years old")
 food = "Pizza"
 price = 12.99
 is_delicious = True
-print(f"{food} costs ${price} and delicious={is_delicious}")
+print(f"{food} costs \${price} and delicious={is_delicious}")
 """
 
         private const val BASIC_LOOPS_CODE = """
@@ -301,7 +301,7 @@ for name, score in zip(names, scores):
 items = ['apple', 'banana']
 prices = [1.50, 0.75]
 for item, price in zip(items, prices):
-    print(f"{item}: ${price}")
+    print(f"{item}: \${price}")
 """
 
         private const val FUNCTIONS_CODE = """

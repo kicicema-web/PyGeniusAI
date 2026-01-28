@@ -240,9 +240,6 @@ class AiEngine private constructor(private val context: Context) {
                     val funcName = spokenText.substringAfter("function ").substringBefore(" ").trim()
                     """
                     def $funcName():
-                        """
-                        pass
-                        """
                         pass
                     """.trimIndent()
                 }

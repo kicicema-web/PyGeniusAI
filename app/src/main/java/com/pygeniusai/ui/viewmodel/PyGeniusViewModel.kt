@@ -145,7 +145,7 @@ class PyGeniusViewModel(application: Application) : AndroidViewModel(application
             userProgress.incrementCodeRuns()
             _lastError.value = null
             
-            val result = pythonRuntime.executeCode(_code.value) { line, type ->
+            val result = pythonRuntime.executeCode(_code.value) { line ->
                 // Real-time line analysis could go here
             }
             

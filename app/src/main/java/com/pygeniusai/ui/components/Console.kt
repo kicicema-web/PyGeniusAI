@@ -181,7 +181,7 @@ private fun AiAnnotation(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, vertical = 2.dp)
+            .padding(horizontal = 24.dp, vertical = 2.dp)
             .background(
                 PyGeniusColors.Accent.copy(alpha = 0.1f),
                 shape = MaterialTheme.shapes.small
@@ -210,7 +210,7 @@ fun ExecutionProgressBar(
 ) {
     if (totalLines > 0) {
         LinearProgressIndicator(
-            progress = { currentLine.toFloat() / totalLines },
+            progress = currentLine.toFloat() / totalLines,
             modifier = modifier
                 .fillMaxWidth()
                 .height(2.dp),
