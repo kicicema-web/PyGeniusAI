@@ -18,7 +18,7 @@ A desktop version of PyGenius AI for Windows, Linux, and macOS.
 
 #### Option 1: Run with Python (Easiest)
 1. Make sure you have Python 3.8+ installed: https://www.python.org/downloads/
-2. Extract `PyGeniusAI-Windows.zip`
+2. Extract `PyGeniusAI-Desktop-Windows.zip`
 3. Double-click `run_windows.bat`
 
 #### Option 2: Build Executable (Advanced)
@@ -30,30 +30,35 @@ The executable will be in `dist/PyGeniusAI.exe`
 
 ### Linux
 
+#### Option 1: Pre-built Executable
+1. Download `PyGeniusAI-Desktop-Linux.zip`
+2. Extract: `unzip PyGeniusAI-Desktop-Linux.zip`
+3. Run: `./PyGeniusAI`
+
+#### Option 2: Run with Python
 ```bash
-# Install dependencies
 pip3 install requests
-
-# Run directly
 python3 pygenius_desktop.py
-
-# Or use the pre-built executable
-./PyGeniusAI
 ```
 
 ### macOS
 
-```bash
-# Install dependencies
-pip3 install requests
+#### Option 1: Run with Python (Easiest)
+1. Make sure you have Python 3.8+ installed
+2. Download `PyGeniusAI-Desktop-macOS.zip`
+3. Extract and run: `./run_macos.sh`
 
-# Run
-python3 pygenius_desktop.py
+#### Option 2: Build macOS App (Recommended)
+```bash
+python3 setup_macos.py
 ```
+Then drag `dist/PyGenius AI.app` to your Applications folder.
+
+See [README_MACOS.md](README_MACOS.md) for detailed macOS instructions.
 
 ## Requirements
 
-- Python 3.8 or higher
+- Python 3.8 or higher (for running with Python)
 - Internet connection (for AI features)
 - `requests` library (auto-installed)
 
@@ -67,9 +72,9 @@ All AI features are powered by OpenRouter (GPT-3.5):
 
 | Shortcut | Action |
 |----------|--------|
-| Ctrl+N | New file |
-| Ctrl+O | Open file |
-| Ctrl+S | Save file |
+| Ctrl/Cmd+N | New file |
+| Ctrl/Cmd+O | Open file |
+| Ctrl/Cmd+S | Save file |
 | F5 | Run code |
 
 ## File Locations
@@ -91,6 +96,22 @@ pyinstaller --onefile --windowed --name PyGeniusAI pygenius_desktop.py
 pip install pyinstaller requests
 pyinstaller --onefile --windowed --name PyGeniusAI pygenius_desktop.py
 ```
+
+### macOS App Bundle
+```bash
+python3 setup_macos.py
+```
+
+See [README_MACOS.md](README_MACOS.md) for macOS-specific build instructions.
+
+## Files
+
+- `pygenius_desktop.py` - Main application
+- `run_windows.bat` - Windows launcher
+- `run_macos.sh` - macOS launcher
+- `setup_macos.py` - macOS app builder
+- `create_dmg.sh` - macOS DMG creator
+- `README_MACOS.md` - macOS-specific instructions
 
 ## License
 
