@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-PyGenius AI - Desktop Edition
-A Python coding assistant with AI-powered features for Windows, Linux, and macOS
+PyGenius AI - Desktop Edition v2.0
+Modern Material Design interface with setup wizard
 """
 
 import tkinter as tk
@@ -10,520 +10,533 @@ import threading
 import json
 import os
 import sys
+import subprocess
+import time
 
 # API Configuration
 OPENROUTER_API_KEY = "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"
 
-try:
-    import requests
-except ImportError:
-    print("Installing required packages...")
-    import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "requests", "-q"])
-    import requests
+# Modern Color Scheme - Material Design
+COLORS = {
+    'primary': '#6200EE',
+    'primary_dark': '#3700B3',
+    'primary_light': '#BB86FC',
+    'secondary': '#03DAC6',
+    'secondary_dark': '#018786',
+    'background': '#121212',
+    'surface': '#1E1E1E',
+    'surface_light': '#2D2D2D',
+    'error': '#CF6679',
+    'on_primary': '#FFFFFF',
+    'on_secondary': '#000000',
+    'on_background': '#FFFFFF',
+    'on_surface': '#FFFFFF',
+    'on_error': '#000000',
+    'success': '#4CAF50',
+    'warning': '#FFC107',
+    'info': '#2196F3',
+}
 
-
-class PyGeniusDesktop:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("PyGenius AI - Desktop Edition")
-        self.root.geometry("1200x800")
-        self.root.minsize(1000, 600)
-        
-        # Set icon if available
-        try:
-            self.root.iconbitmap("pygenius.ico")
-        except:
-            pass
-        
-        # Configure styles
-        self.configure_styles()
-        
-        # Create UI
-        self.create_menu()
-        self.create_main_interface()
-        
-        # Current file
-        self.current_file = None
-        self.is_modified = False
-        
-        # Execution namespace for console
-        self.console_namespace = {"__name__": "__console__"}
-        
-        # Bind keyboard shortcuts
-        self.bind_shortcuts()
-        
-    def configure_styles(self):
+class ModernStyle:
+    """Modern Material Design styles for tkinter"""
+    
+    @staticmethod
+    def configure_styles(style):
         """Configure ttk styles"""
-        style = ttk.Style()
         style.theme_use('clam')
         
-        # Colors
-        self.bg_color = "#1e1e1e"
-        self.fg_color = "#d4d4d4"
-        self.accent_color = "#007acc"
-        self.success_color = "#4ec9b0"
-        self.warning_color = "#ce9178"
-        
-        self.root.configure(bg=self.bg_color)
-        
-    def create_menu(self):
-        """Create menu bar"""
-        menubar = tk.Menu(self.root)
-        self.root.config(menu=menubar)
-        
-        # File menu
-        file_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="New (Ctrl+N)", command=self.new_file)
-        file_menu.add_command(label="Open (Ctrl+O)", command=self.open_file)
-        file_menu.add_command(label="Save (Ctrl+S)", command=self.save_file)
-        file_menu.add_command(label="Save As", command=self.save_as_file)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.root.quit)
-        
-        # Run menu
-        run_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Run", menu=run_menu)
-        run_menu.add_command(label="Run Code (F5)", command=self.run_code)
-        
-        # AI menu
-        ai_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="AI", menu=ai_menu)
-        ai_menu.add_command(label="Ask AI Tutor", command=self.ask_ai)
-        ai_menu.add_command(label="Explain Code", command=self.explain_code)
-        ai_menu.add_command(label="Find Bugs", command=self.find_bugs)
-        ai_menu.add_command(label="Optimize Code", command=self.optimize_code)
-        
-    def create_main_interface(self):
-        """Create the main UI layout"""
-        # Main container
-        main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # Create paned window for resizable panels
-        paned = ttk.PanedWindow(main_frame, orient=tk.HORIZONTAL)
-        paned.pack(fill=tk.BOTH, expand=True)
-        
-        # Left panel - Code Editor
-        left_frame = ttk.Frame(paned)
-        paned.add(left_frame, weight=3)
-        
-        # Editor header
-        editor_header = ttk.Frame(left_frame)
-        editor_header.pack(fill=tk.X, pady=(0, 5))
-        
-        ttk.Label(editor_header, text="📝 Code Editor", font=('Segoe UI', 10, 'bold')).pack(side=tk.LEFT)
-        self.file_label = ttk.Label(editor_header, text="untitled.py")
-        self.file_label.pack(side=tk.RIGHT)
-        
-        # Code editor
-        self.editor_frame = ttk.Frame(left_frame)
-        self.editor_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Line numbers
-        self.line_numbers = tk.Text(
-            self.editor_frame,
-            width=4,
-            padx=4,
-            pady=5,
-            bg="#252526",
-            fg="#858585",
-            font=('Consolas', 11),
-            state='disabled',
-            wrap=tk.NONE
+        style.configure('.',
+            background=COLORS['background'],
+            foreground=COLORS['on_background'],
+            fieldbackground=COLORS['surface'],
+            troughcolor=COLORS['surface_light']
         )
+
+class SetupWizard:
+    """Setup wizard for first-time installation"""
+    
+    def __init__(self, parent, on_complete):
+        self.parent = parent
+        self.on_complete = on_complete
+        self.window = tk.Toplevel(parent)
+        self.window.title("PyGenius AI - Setup")
+        self.window.geometry("700x500")
+        self.window.configure(bg=COLORS['background'])
+        self.window.transient(parent)
+        self.window.grab_set()
+        
+        # Center window
+        self.window.update_idletasks()
+        x = (self.window.winfo_screenwidth() // 2) - (700 // 2)
+        y = (self.window.winfo_screenheight() // 2) - (500 // 2)
+        self.window.geometry(f"700x500+{x}+{y}")
+        
+        self.dependencies = {
+            'requests': {'required': True, 'installed': False, 'description': 'HTTP library for AI API'},
+            'pillow': {'required': False, 'installed': False, 'description': 'Image processing'},
+            'numpy': {'required': False, 'installed': False, 'description': 'Numerical computing'},
+        }
+        
+        self.create_ui()
+        self.check_dependencies()
+    
+    def create_ui(self):
+        """Create setup wizard UI"""
+        # Header
+        header = tk.Frame(self.window, bg=COLORS['primary'], height=80)
+        header.pack(fill=tk.X)
+        header.pack_propagate(False)
+        
+        tk.Label(header, text="PyGenius AI", font=('Segoe UI', 20, 'bold'),
+                bg=COLORS['primary'], fg=COLORS['on_primary']).pack(side=tk.LEFT, padx=20, pady=15)
+        
+        # Main content
+        self.content = tk.Frame(self.window, bg=COLORS['background'])
+        self.content.pack(fill=tk.BOTH, expand=True, padx=30, pady=20)
+        
+        # Progress
+        self.progress_var = tk.DoubleVar(value=0)
+        self.progress = ttk.Progressbar(self.content, variable=self.progress_var,
+                                       maximum=100, mode='determinate', length=600)
+        self.progress.pack(fill=tk.X, pady=(0, 20))
+        
+        self.step_frame = tk.Frame(self.content, bg=COLORS['background'])
+        self.step_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Buttons
+        btn_frame = tk.Frame(self.content, bg=COLORS['background'])
+        btn_frame.pack(fill=tk.X, pady=(20, 0))
+        
+        self.skip_btn = tk.Button(btn_frame, text="Skip", command=self.skip,
+                                 bg=COLORS['surface'], fg=COLORS['on_surface'],
+                                 font=('Segoe UI', 10), relief=tk.FLAT, padx=20, pady=8)
+        self.skip_btn.pack(side=tk.RIGHT, padx=(10, 0))
+        
+        self.next_btn = tk.Button(btn_frame, text="Get Started", command=self.install_all,
+                                 bg=COLORS['primary'], fg=COLORS['on_primary'],
+                                 font=('Segoe UI', 10, 'bold'), relief=tk.FLAT, padx=25, pady=8)
+        self.next_btn.pack(side=tk.RIGHT)
+        
+        self.show_welcome()
+    
+    def show_welcome(self):
+        """Show welcome screen"""
+        for w in self.step_frame.winfo_children():
+            w.destroy()
+        
+        tk.Label(self.step_frame, text="Welcome!", font=('Segoe UI', 24, 'bold'),
+                bg=COLORS['background'], fg=COLORS['on_background']).pack(pady=(30, 10))
+        
+        tk.Label(self.step_frame, text="Let's set up your Python coding environment.",
+                font=('Segoe UI', 12), bg=COLORS['background'], fg=COLORS['primary_light']).pack()
+        
+        # Features
+        features = [
+            ("AI Tutor", "Get help from GPT-powered AI"),
+            ("Code Editor", "Write and run Python code"),
+            ("Bug Finder", "Detect and fix errors"),
+        ]
+        
+        f_frame = tk.Frame(self.step_frame, bg=COLORS['background'])
+        f_frame.pack(fill=tk.X, pady=30)
+        
+        for title, desc in features:
+            card = tk.Frame(f_frame, bg=COLORS['surface'], padx=15, pady=15)
+            card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+            tk.Label(card, text=title, font=('Segoe UI', 11, 'bold'),
+                    bg=COLORS['surface'], fg=COLORS['on_surface']).pack()
+            tk.Label(card, text=desc, font=('Segoe UI', 9),
+                    bg=COLORS['surface'], fg='#888888').pack()
+    
+    def check_dependencies(self):
+        """Check installed dependencies"""
+        for pkg in self.dependencies:
+            try:
+                __import__(pkg if pkg != 'pillow' else 'PIL')
+                self.dependencies[pkg]['installed'] = True
+            except ImportError:
+                pass
+    
+    def install_all(self):
+        """Install dependencies"""
+        self.next_btn.config(state=tk.DISABLED, text="Installing...")
+        self.skip_btn.config(state=tk.DISABLED)
+        threading.Thread(target=self._install_thread, daemon=True).start()
+    
+    def _install_thread(self):
+        """Install in background"""
+        for pkg_name, info in self.dependencies.items():
+            if not info['installed']:
+                try:
+                    subprocess.run([sys.executable, "-m", "pip", "install", pkg_name, "--quiet"],
+                                  capture_output=True, timeout=120)
+                except:
+                    pass
+        self.window.after(0, self.finish)
+    
+    def skip(self):
+        """Skip setup"""
+        self.finish()
+    
+    def finish(self):
+        """Complete setup"""
+        config_dir = os.path.expanduser("~/.config/pygenius")
+        os.makedirs(config_dir, exist_ok=True)
+        with open(f"{config_dir}/setup_complete", "w") as f:
+            f.write("1")
+        self.window.destroy()
+        self.on_complete()
+
+class PyGeniusDesktop:
+    """Main application"""
+    
+    def __init__(self, root):
+        self.root = root
+        self.root.title("PyGenius AI")
+        self.root.geometry("1400x900")
+        self.root.configure(bg=COLORS['background'])
+        
+        self.style = ttk.Style()
+        ModernStyle.configure_styles(self.style)
+        
+        self.current_file = None
+        self.console_namespace = {"__name__": "__console__"}
+        
+        self.create_ui()
+        self.load_welcome()
+    
+    def create_ui(self):
+        """Create modern UI"""
+        # Main container
+        main = tk.Frame(self.root, bg=COLORS['background'])
+        main.pack(fill=tk.BOTH, expand=True)
+        
+        # Sidebar
+        sidebar = tk.Frame(main, bg=COLORS['surface'], width=200)
+        sidebar.pack(side=tk.LEFT, fill=tk.Y)
+        sidebar.pack_propagate(False)
+        
+        # Logo
+        logo = tk.Frame(sidebar, bg=COLORS['primary'], height=60)
+        logo.pack(fill=tk.X)
+        tk.Label(logo, text="PyGenius AI", font=('Segoe UI', 14, 'bold'),
+                bg=COLORS['primary'], fg='white').pack(expand=True)
+        
+        # Menu buttons
+        tk.Label(sidebar, text="MENU", font=('Segoe UI', 9),
+                bg=COLORS['surface'], fg='#666').pack(anchor=tk.W, padx=15, pady=(20, 10))
+        
+        for icon, text, cmd in [
+            ("Code", "Editor", lambda: self.show_frame('editor')),
+            ("Console", "Console", lambda: self.show_frame('console')),
+            ("AI", "AI Tutor", lambda: self.show_frame('ai')),
+        ]:
+            btn = tk.Button(sidebar, text=f"{icon} {text}", command=cmd,
+                           bg=COLORS['surface'], fg='white',
+                           font=('Segoe UI', 10), relief=tk.FLAT,
+                           anchor=tk.W, padx=15, pady=8)
+            btn.pack(fill=tk.X, padx=10, pady=2)
+        
+        # Content area
+        self.content = tk.Frame(main, bg=COLORS['background'])
+        self.content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Editor
+        self.editor_frame = tk.Frame(self.content, bg=COLORS['background'])
+        
+        toolbar = tk.Frame(self.editor_frame, bg=COLORS['surface'], height=45)
+        toolbar.pack(fill=tk.X, pady=(0, 10))
+        toolbar.pack_propagate(False)
+        
+        self.file_label = tk.Label(toolbar, text="untitled.py",
+                                  font=('Segoe UI', 10), bg=COLORS['surface'], fg='white')
+        self.file_label.pack(side=tk.LEFT, padx=15)
+        
+        tk.Button(toolbar, text="Run", command=self.run_code,
+                 bg=COLORS['success'], fg='white',
+                 font=('Segoe UI', 9, 'bold'), relief=tk.FLAT, padx=15).pack(side=tk.RIGHT, padx=10, pady=8)
+        
+        # Editor with line numbers
+        editor_container = tk.Frame(self.editor_frame, bg=COLORS['surface'])
+        editor_container.pack(fill=tk.BOTH, expand=True)
+        
+        self.line_numbers = tk.Text(editor_container, width=4, padx=5, pady=10,
+                                   bg=COLORS['surface'], fg='#666',
+                                   font=('Consolas', 11), state='disabled', wrap=tk.NONE)
         self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
         
-        # Main code editor
         self.code_editor = scrolledtext.ScrolledText(
-            self.editor_frame,
-            wrap=tk.NONE,
-            font=('Consolas', 11),
-            bg="#1e1e1e",
-            fg="#d4d4d4",
-            insertbackground="#d4d4d4",
-            selectbackground="#264f78",
-            padx=10,
-            pady=5,
-            undo=True
+            editor_container, wrap=tk.NONE, font=('Consolas', 11),
+            bg=COLORS['surface'], fg='white',
+            insertbackground=COLORS['primary'],
+            padx=10, pady=10, undo=True
         )
         self.code_editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.code_editor.bind('<KeyRelease>', self.on_editor_change)
-        self.code_editor.bind('<Return>', self.update_line_numbers)
+        self.code_editor.bind('<KeyRelease>', lambda e: self.update_lines())
         
-        # Default code
-        self.code_editor.insert('1.0', '''# Welcome to PyGenius AI Desktop!
-# Write your Python code here and run it
-
-def hello_world():
-    print("Hello, World!")
-    return "Welcome to PyGenius AI"
-
-# Run your code with F5 or Run menu
-result = hello_world()
-print(result)
-''')
-        self.update_line_numbers()
+        # Console
+        self.console_frame = tk.Frame(self.content, bg=COLORS['background'])
         
-        # Right panel - Console and AI
-        right_frame = ttk.Frame(paned)
-        paned.add(right_frame, weight=2)
+        c_header = tk.Frame(self.console_frame, bg=COLORS['surface'], height=45)
+        c_header.pack(fill=tk.X, pady=(0, 10))
+        tk.Label(c_header, text="Console", font=('Segoe UI', 11, 'bold'),
+                bg=COLORS['surface'], fg='white').pack(side=tk.LEFT, padx=15)
+        tk.Button(c_header, text="Clear", command=self.clear_console,
+                 bg=COLORS['surface_light'], fg='white', relief=tk.FLAT).pack(side=tk.RIGHT, padx=10)
         
-        # Notebook for tabs
-        self.notebook = ttk.Notebook(right_frame)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
-        
-        # Console tab
-        console_frame = ttk.Frame(self.notebook)
-        self.notebook.add(console_frame, text="💻 Console")
-        
-        console_header = ttk.Frame(console_frame)
-        console_header.pack(fill=tk.X, pady=(0, 5))
-        ttk.Label(console_header, text="Output:", font=('Segoe UI', 9, 'bold')).pack(side=tk.LEFT)
-        ttk.Button(console_header, text="Clear", command=self.clear_console).pack(side=tk.RIGHT)
-        ttk.Button(console_header, text="Run (F5)", command=self.run_code).pack(side=tk.RIGHT, padx=5)
-        
-        # Console output
         self.console = scrolledtext.ScrolledText(
-            console_frame,
-            wrap=tk.WORD,
-            font=('Consolas', 10),
-            bg="#0c0c0c",
-            fg="#cccccc",
-            state='disabled',
-            height=12
+            self.console_frame, wrap=tk.WORD, font=('Consolas', 10),
+            bg='#0D1117', fg='#C9D1D9', state='disabled'
         )
         self.console.pack(fill=tk.BOTH, expand=True)
         
-        # Console input frame
-        input_frame = ttk.Frame(console_frame)
-        input_frame.pack(fill=tk.X, pady=(5, 0))
+        # Input
+        c_input = tk.Frame(self.console_frame, bg=COLORS['surface'], height=40)
+        c_input.pack(fill=tk.X, pady=(10, 0))
+        tk.Label(c_input, text=">>>", font=('Consolas', 11),
+                bg=COLORS['surface'], fg=COLORS['primary']).pack(side=tk.LEFT, padx=10)
+        self.c_input = tk.Entry(c_input, font=('Consolas', 11),
+                               bg=COLORS['surface'], fg='white', relief=tk.FLAT)
+        self.c_input.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.c_input.bind('<Return>', lambda e: self.exec_console())
+        tk.Button(c_input, text="Run", command=lambda: self.exec_console(),
+                 bg=COLORS['primary'], fg='white', relief=tk.FLAT).pack(side=tk.RIGHT, padx=10)
         
-        ttk.Label(input_frame, text=">>>", font=('Consolas', 10)).pack(side=tk.LEFT, padx=(0, 5))
+        # AI Frame
+        self.ai_frame = tk.Frame(self.content, bg=COLORS['background'])
         
-        self.console_input = ttk.Entry(input_frame, font=('Consolas', 10))
-        self.console_input.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
-        self.console_input.bind('<Return>', self.on_console_input)
+        ai_header = tk.Frame(self.ai_frame, bg=COLORS['surface'], height=45)
+        ai_header.pack(fill=tk.X, pady=(0, 10))
+        tk.Label(ai_header, text="AI Tutor", font=('Segoe UI', 11, 'bold'),
+                bg=COLORS['surface'], fg='white').pack(side=tk.LEFT, padx=15)
         
-        ttk.Button(input_frame, text="Execute", command=lambda: self.on_console_input(None)).pack(side=tk.RIGHT)
+        ai_input = tk.Frame(self.ai_frame, bg=COLORS['surface'], height=50)
+        ai_input.pack(fill=tk.X, pady=(0, 10))
+        self.ai_entry = tk.Entry(ai_input, font=('Segoe UI', 11),
+                                bg=COLORS['surface'], fg='white', relief=tk.FLAT)
+        self.ai_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=15, pady=10)
+        self.ai_entry.bind('<Return>', lambda e: self.ask_ai())
+        tk.Button(ai_input, text="Ask", command=self.ask_ai,
+                 bg=COLORS['primary'], fg='white', relief=tk.FLAT, padx=20).pack(side=tk.RIGHT, padx=15)
         
-        # AI Tutor tab
-        ai_frame = ttk.Frame(self.notebook)
-        self.notebook.add(ai_frame, text="🤖 AI Tutor")
-        
-        ai_header = ttk.Frame(ai_frame)
-        ai_header.pack(fill=tk.X, pady=(0, 5))
-        ttk.Label(ai_header, text="Ask the AI:", font=('Segoe UI', 9, 'bold')).pack(side=tk.LEFT)
-        
-        self.ai_input = ttk.Entry(ai_frame, font=('Segoe UI', 10))
-        self.ai_input.pack(fill=tk.X, pady=(0, 5))
-        self.ai_input.bind('<Return>', lambda e: self.ask_ai())
-        
-        ai_buttons = ttk.Frame(ai_frame)
-        ai_buttons.pack(fill=tk.X, pady=(0, 5))
-        ttk.Button(ai_buttons, text="Ask", command=self.ask_ai).pack(side=tk.LEFT, padx=2)
-        ttk.Button(ai_buttons, text="Explain Code", command=self.explain_code).pack(side=tk.LEFT, padx=2)
-        ttk.Button(ai_buttons, text="Find Bugs", command=self.find_bugs).pack(side=tk.LEFT, padx=2)
-        ttk.Button(ai_buttons, text="Optimize", command=self.optimize_code).pack(side=tk.LEFT, padx=2)
+        # AI Quick buttons
+        ai_btns = tk.Frame(self.ai_frame, bg=COLORS['background'])
+        ai_btns.pack(fill=tk.X, pady=(0, 10))
+        for text, cmd in [("Explain", self.explain_code), ("Find Bugs", self.find_bugs), ("Optimize", self.optimize_code)]:
+            tk.Button(ai_btns, text=text, command=cmd,
+                     bg=COLORS['surface'], fg='white', relief=tk.FLAT, padx=15).pack(side=tk.LEFT, padx=5)
         
         self.ai_output = scrolledtext.ScrolledText(
-            ai_frame,
-            wrap=tk.WORD,
-            font=('Segoe UI', 10),
-            bg="#1e1e1e",
-            fg="#d4d4d4",
-            state='disabled',
-            height=15
+            self.ai_frame, wrap=tk.WORD, font=('Segoe UI', 10),
+            bg=COLORS['surface'], fg='white', state='disabled'
         )
         self.ai_output.pack(fill=tk.BOTH, expand=True)
         
         # Status bar
-        self.status_bar = ttk.Label(
-            self.root,
-            text="Ready | AI: Connected | Type in console and press Enter to execute",
-            relief=tk.SUNKEN,
-            anchor=tk.W
-        )
-        self.status_bar.pack(fill=tk.X, side=tk.BOTTOM)
+        status = tk.Frame(self.root, bg=COLORS['surface_light'], height=25)
+        status.pack(side=tk.BOTTOM, fill=tk.X)
+        tk.Label(status, text="Ready", font=('Segoe UI', 9),
+                bg=COLORS['surface_light'], fg='#888').pack(side=tk.LEFT, padx=15)
         
-    def on_console_input(self, event):
-        """Handle console input"""
-        code = self.console_input.get().strip()
-        if not code:
-            return
+        self.show_frame('editor')
+    
+    def show_frame(self, name):
+        """Show specific frame"""
+        for f in [self.editor_frame, self.console_frame, self.ai_frame]:
+            f.pack_forget()
         
-        # Show input in console
-        self.log_to_console(f">>> {code}", "input")
-        self.console_input.delete(0, tk.END)
-        
-        # Execute in separate thread
-        def execute():
-            try:
-                # Try to evaluate first (for expressions)
-                try:
-                    result = eval(code, self.console_namespace)
-                    if result is not None:
-                        self.root.after(0, lambda: self.log_to_console(str(result), "output"))
-                except SyntaxError:
-                    # If eval fails, use exec (for statements)
-                    exec(code, self.console_namespace)
-                except Exception as e:
-                    self.root.after(0, lambda: self.log_to_console(f"Error: {str(e)}", "error"))
-            except Exception as e:
-                self.root.after(0, lambda: self.log_to_console(f"Error: {str(e)}", "error"))
-        
-        threading.Thread(target=execute, daemon=True).start()
-        
-    def update_line_numbers(self, event=None):
+        if name == 'editor':
+            self.editor_frame.pack(fill=tk.BOTH, expand=True)
+        elif name == 'console':
+            self.console_frame.pack(fill=tk.BOTH, expand=True)
+        elif name == 'ai':
+            self.ai_frame.pack(fill=tk.BOTH, expand=True)
+    
+    def load_welcome(self):
+        """Load welcome code"""
+        code = '''# Welcome to PyGenius AI!
+# Your Python coding assistant
+
+def hello(name):
+    return f"Hello, {name}!"
+
+print(hello("World"))
+'''
+        self.code_editor.delete('1.0', tk.END)
+        self.code_editor.insert('1.0', code)
+        self.update_lines()
+    
+    def update_lines(self):
         """Update line numbers"""
-        line_count = self.code_editor.get('1.0', tk.END).count('\n')
-        line_numbers_text = '\n'.join(str(i) for i in range(1, line_count + 1))
+        lines = self.code_editor.get('1.0', tk.END).count('\n')
         self.line_numbers.config(state='normal')
         self.line_numbers.delete('1.0', tk.END)
-        self.line_numbers.insert('1.0', line_numbers_text)
+        self.line_numbers.insert('1.0', '\n'.join(str(i) for i in range(1, lines + 1)))
         self.line_numbers.config(state='disabled')
-        return None if event is None else "break"
-        
-    def on_editor_change(self, event=None):
-        """Handle editor changes"""
-        self.is_modified = True
-        self.update_line_numbers()
-        
-    def bind_shortcuts(self):
-        """Bind keyboard shortcuts"""
-        self.root.bind('<Control-n>', lambda e: self.new_file())
-        self.root.bind('<Control-o>', lambda e: self.open_file())
-        self.root.bind('<Control-s>', lambda e: self.save_file())
-        self.root.bind('<F5>', lambda e: self.run_code())
-        
-    def new_file(self):
-        """Create new file"""
-        if self.is_modified:
-            if messagebox.askyesno("Save Changes?", "Do you want to save changes?"):
-                self.save_file()
-        self.code_editor.delete('1.0', tk.END)
-        self.current_file = None
-        self.file_label.config(text="untitled.py")
-        self.is_modified = False
-        
-    def open_file(self):
-        """Open file dialog"""
-        file_path = filedialog.askopenfilename(
-            defaultextension=".py",
-            filetypes=[("Python files", "*.py"), ("All files", "*.*")]
-        )
-        if file_path:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            self.code_editor.delete('1.0', tk.END)
-            self.code_editor.insert('1.0', content)
-            self.current_file = file_path
-            self.file_label.config(text=os.path.basename(file_path))
-            self.is_modified = False
-            self.update_line_numbers()
-            
-    def save_file(self):
-        """Save current file"""
-        if self.current_file:
-            with open(self.current_file, 'w', encoding='utf-8') as f:
-                f.write(self.code_editor.get('1.0', tk.END))
-            self.is_modified = False
-            self.status_bar.config(text=f"Saved: {self.current_file}")
-        else:
-            self.save_as_file()
-            
-    def save_as_file(self):
-        """Save as dialog"""
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".py",
-            filetypes=[("Python files", "*.py"), ("All files", "*.*")]
-        )
-        if file_path:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(self.code_editor.get('1.0', tk.END))
-            self.current_file = file_path
-            self.file_label.config(text=os.path.basename(file_path))
-            self.is_modified = False
-            
+    
     def clear_console(self):
-        """Clear console output"""
+        """Clear console"""
         self.console.config(state='normal')
         self.console.delete('1.0', tk.END)
         self.console.config(state='disabled')
-        # Clear namespace
-        self.console_namespace = {"__name__": "__console__"}
-        
-    def log_to_console(self, text, tag=""):
-        """Add text to console"""
+    
+    def log_console(self, text):
+        """Log to console"""
         self.console.config(state='normal')
-        self.console.insert(tk.END, text + "\n", tag)
+        self.console.insert(tk.END, text + '\n')
         self.console.see(tk.END)
         self.console.config(state='disabled')
-        
-    def log_to_ai(self, text):
-        """Add text to AI output"""
+    
+    def log_ai(self, text):
+        """Log to AI"""
         self.ai_output.config(state='normal')
         self.ai_output.delete('1.0', tk.END)
         self.ai_output.insert(tk.END, text)
-        self.ai_output.see(tk.END)
         self.ai_output.config(state='disabled')
+    
+    def exec_console(self):
+        """Execute console input"""
+        code = self.c_input.get().strip()
+        if not code:
+            return
+        self.log_console(f">>> {code}")
+        self.c_input.delete(0, tk.END)
         
+        def run():
+            try:
+                try:
+                    result = eval(code, self.console_namespace)
+                    if result is not None:
+                        self.root.after(0, lambda: self.log_console(str(result)))
+                except SyntaxError:
+                    exec(code, self.console_namespace)
+            except Exception as e:
+                self.root.after(0, lambda: self.log_console(f"Error: {e}"))
+        
+        threading.Thread(target=run, daemon=True).start()
+    
     def run_code(self):
-        """Execute Python code from editor"""
+        """Run editor code"""
         code = self.code_editor.get('1.0', tk.END)
         self.clear_console()
-        self.log_to_console("=== Running Python Code ===\n")
+        self.show_frame('console')
+        self.log_console("Running...")
         
-        # Run in separate thread to avoid freezing UI
         def execute():
             import io
-            import contextlib
-            
-            output = io.StringIO()
+            from contextlib import redirect_stdout, redirect_stderr
+            out = io.StringIO()
             try:
-                with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                with redirect_stdout(out), redirect_stderr(out):
                     exec(code, {"__name__": "__main__"})
-                result = output.getvalue()
-                if result:
-                    self.root.after(0, lambda: self.log_to_console(result))
-                else:
-                    self.root.after(0, lambda: self.log_to_console("(Code executed successfully with no output)"))
+                result = out.getvalue()
+                self.root.after(0, lambda: self.log_console(result or "Done!"))
             except Exception as e:
-                self.root.after(0, lambda: self.log_to_console(f"Error: {str(e)}"))
-                
-        threading.Thread(target=execute, daemon=True).start()
+                self.root.after(0, lambda: self.log_console(f"Error: {e}"))
         
-    def call_openrouter(self, system_prompt, user_prompt):
+        threading.Thread(target=execute, daemon=True).start()
+    
+    def call_ai(self, system, user):
         """Call OpenRouter API"""
+        try:
+            import requests
+        except ImportError:
+            return "Error: requests not installed"
+        
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://pygenius.ai",
-            "X-Title": "PyGenius AI Desktop"
         }
-        
         data = {
             "model": "openai/gpt-3.5-turbo",
             "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "system", "content": system},
+                {"role": "user", "content": user}
             ],
             "temperature": 0.7,
             "max_tokens": 2000
         }
         
         try:
-            response = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers=headers,
-                json=data,
-                timeout=60
-            )
-            response.raise_for_status()
-            return response.json()["choices"][0]["message"]["content"]
+            resp = requests.post("https://openrouter.ai/api/v1/chat/completions",
+                               headers=headers, json=data, timeout=60)
+            return resp.json()["choices"][0]["message"]["content"]
         except Exception as e:
-            return f"Error: {str(e)}\n\nPlease check your internet connection."
-            
+            return f"Error: {e}"
+    
     def ask_ai(self):
-        """Ask AI tutor"""
-        question = self.ai_input.get().strip()
-        if not question:
-            messagebox.showinfo("Ask AI", "Please enter a question first!")
+        """Ask AI"""
+        q = self.ai_entry.get().strip()
+        if not q:
             return
-            
-        code = self.code_editor.get('1.0', tk.END)
-        self.log_to_ai("Thinking...")
-        self.notebook.select(1)  # Switch to AI tab
+        self.log_ai("Thinking...")
+        self.show_frame('ai')
         
         def ask():
-            system = "You are PyGenius AI, a helpful Python programming tutor. Be concise but thorough. Provide code examples when helpful."
-            user = f"Question: {question}\n\nCurrent code context:\n```python\n{code[:1000]}\n```"
-            response = self.call_openrouter(system, user)
-            self.root.after(0, lambda: self.log_to_ai(response))
-            
+            code = self.code_editor.get('1.0', tk.END)[:1000]
+            system = "You are a Python tutor. Be concise."
+            user = f"Q: {q}\\nCode: {code}"
+            resp = self.call_ai(system, user)
+            self.root.after(0, lambda: self.log_ai(resp))
+        
         threading.Thread(target=ask, daemon=True).start()
-        
+    
     def explain_code(self):
-        """Explain current code"""
+        """Explain code"""
         code = self.code_editor.get('1.0', tk.END).strip()
-        if not code:
-            messagebox.showinfo("Explain Code", "Please write some code first!")
-            return
-            
-        self.log_to_ai("Analyzing your code...")
-        self.notebook.select(1)
+        self.log_ai("Analyzing...")
+        self.show_frame('ai')
         
-        def explain():
-            system = """You are a Python code explainer. Explain the provided Python code clearly and concisely.
-Break down:
-1. What the code does overall
-2. Key concepts used
-3. Important functions/classes
-4. Any potential issues or improvements
-Use emoji icons to make it engaging."""
-            user = f"Please explain this Python code:\n```python\n{code}\n```"
-            response = self.call_openrouter(system, user)
-            self.root.after(0, lambda: self.log_to_ai(response))
-            
-        threading.Thread(target=explain, daemon=True).start()
+        def run():
+            resp = self.call_ai("Explain Python code clearly.", f"Explain:\\n{code}")
+            self.root.after(0, lambda: self.log_ai(resp))
         
+        threading.Thread(target=run, daemon=True).start()
+    
     def find_bugs(self):
-        """Find bugs in code"""
+        """Find bugs"""
         code = self.code_editor.get('1.0', tk.END).strip()
-        if not code:
-            messagebox.showinfo("Find Bugs", "Please write some code first!")
-            return
-            
-        self.log_to_ai("Analyzing for bugs...")
-        self.notebook.select(1)
+        self.log_ai("Checking for bugs...")
+        self.show_frame('ai')
         
-        def analyze():
-            system = """You are a Python code reviewer. Analyze the code for bugs, issues, and improvements.
-Check for:
-- Syntax errors
-- Logic bugs
-- Performance issues
-- Security concerns
-- Best practice violations
-
-Provide specific line numbers and fix suggestions."""
-            user = f"Please analyze this Python code:\n```python\n{code}\n```"
-            response = self.call_openrouter(system, user)
-            self.root.after(0, lambda: self.log_to_ai(response))
-            
-        threading.Thread(target=analyze, daemon=True).start()
+        def run():
+            resp = self.call_ai("Find bugs in Python code.", f"Find bugs:\\n{code}")
+            self.root.after(0, lambda: self.log_ai(resp))
         
+        threading.Thread(target=run, daemon=True).start()
+    
     def optimize_code(self):
-        """Optimize current code"""
+        """Optimize code"""
         code = self.code_editor.get('1.0', tk.END).strip()
-        if not code:
-            messagebox.showinfo("Optimize Code", "Please write some code first!")
-            return
-            
-        self.log_to_ai("Analyzing for optimizations...")
-        self.notebook.select(1)
+        self.log_ai("Optimizing...")
+        self.show_frame('ai')
         
-        def optimize():
-            system = """You are a Python optimization expert. Analyze the provided code and suggest optimizations for:
-- Performance
-- Readability
-- Pythonic style
-- Memory usage
+        def run():
+            resp = self.call_ai("Optimize Python code.", f"Optimize:\\n{code}")
+            self.root.after(0, lambda: self.log_ai(resp))
+        
+        threading.Thread(target=run, daemon=True).start()
 
-Provide the optimized code with comments explaining the changes."""
-            user = f"Please optimize this Python code:\n```python\n{code}\n```"
-            response = self.call_openrouter(system, user)
-            self.root.after(0, lambda: self.log_to_ai(response))
-            
-        threading.Thread(target=optimize, daemon=True).start()
-
+def check_first_run():
+    """Check first run"""
+    config = os.path.expanduser("~/.config/pygenius/setup_complete")
+    return not os.path.exists(config)
 
 def main():
-    root = tk.Tk()
-    app = PyGeniusDesktop(root)
-    root.mainloop()
+    """Main"""
+    if check_first_run():
+        root = tk.Tk()
+        root.withdraw()
+        SetupWizard(root, lambda: (root.destroy(), launch_app()))
+        root.mainloop()
+    else:
+        launch_app()
 
+def launch_app():
+    """Launch main app"""
+    root = tk.Tk()
+    PyGeniusDesktop(root)
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
