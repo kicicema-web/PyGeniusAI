@@ -1,5 +1,5 @@
 # PyGenius AI - Android Python IDE
-
+any qusetions? lokofibn@gmail.com
 An AI-powered Python development environment for Android, combining a full-featured editor with an intelligent tutoring system.
 
 ## Features
